@@ -13,8 +13,9 @@ DEFINES += LIBVIDEOTOOLS_LIBRARY
 
 SOURCES += libvideotools.cpp
 
-HEADERS += libvideotools.h\
-        libvideotools_global.h
+HEADERS += \
+    ../../include/libvideotools_global.h \
+    ../../include/libvideotools.h
 
 unix:!symbian {
     maemo5 {

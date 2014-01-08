@@ -1,6 +1,6 @@
 #include "libvideotools.h"
 
 
-Libvideotools::Libvideotools()
-{
+Libvideotools::Libvideotools(){
+
 }
