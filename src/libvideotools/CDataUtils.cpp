@@ -77,3 +77,8 @@ Mat CDataUtils::unpackRow(cv::Mat& _bigMat, int _rowNo, cv::Size _outSize){
     outMat = outMat.reshape(0, _outSize.height);
     return outMat;
 }
+
+bool CDataUtils::eq(const cv::Mat& _mat1, const cv::Mat& _mat2){
+    Mat diff = (_mat1 != _mat2);
+    return ( countNonZero(diff) == 0 );
+}

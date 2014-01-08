@@ -37,7 +37,7 @@
  *  Created: January 8, 2014.
  */
 
-#include "libvideotools.h"
+#include <../../include/libvideotools.h>
 
 
 Libvideotools::Libvideotools(){

@@ -41,11 +41,14 @@
 
 #include <opencv2/core/core.hpp>
 
-class CDataUtils
+#include "libvideotools_global.h"
+
+class LIBVIDEOTOOLSSHARED_EXPORT CDataUtils
 {
 public:
     static void packRow(cv::Mat& _bigMat, int _rowNo, cv::Mat& _newData);
     static cv::Mat unpackRow(cv::Mat& _bigMat, int _rowNo, cv::Size _outSize);
+    static bool eq(const cv::Mat& _mat1, const cv::Mat& _mat2);
 };
 
 #endif // CDATAUTILS_H
