@@ -11,11 +11,20 @@ TEMPLATE = lib
 
 DEFINES += LIBVIDEOTOOLS_LIBRARY
 
-SOURCES += libvideotools.cpp
+SOURCES += libvideotools.cpp \
+    CDataUtils.cpp
+
+INCLUDEPATH += /usr/local/include
+LIBS += -lglog -L/usr/local/lib -lopencv_core
+
+QMAKE_CXXFLAGS += -std=c++0x
+QMAKE_CXXFLAGS_RELEASE += -O3 -march=native -DNDEBUG
 
 HEADERS += \
     ../../include/libvideotools_global.h \
-    ../../include/libvideotools.h
+    ../../include/libvideotools.h \
+    ../../include/CDataUtils.h \
+    globalInclude.h
 
 unix:!symbian {
     maemo5 {

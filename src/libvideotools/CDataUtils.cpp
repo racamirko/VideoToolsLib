@@ -32,20 +32,48 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  *
- *  File:    libvideotools_global.h
+ *  File:    CDataUtils.cpp
  *  Author:  Mirko Raca <name.lastname@epfl.ch>
  *  Created: January 8, 2014.
  */
 
-#ifndef LIBVIDEOTOOLS_GLOBAL_H
-#define LIBVIDEOTOOLS_GLOBAL_H
+#include <../../include/CDataUtils.h>
 
-#include <QtCore/qglobal.h>
+using namespace cv;
 
-#if defined(LIBVIDEOTOOLS_LIBRARY)
-#  define LIBVIDEOTOOLSSHARED_EXPORT Q_DECL_EXPORT
-#else
-#  define LIBVIDEOTOOLSSHARED_EXPORT Q_DECL_IMPORT
-#endif
+#include "globalInclude.h"
 
-#endif // LIBVIDEOTOOLS_GLOBAL_H
+void CDataUtils::packRow(cv::Mat& _bigMat, int _rowNo, cv::Mat& _newData){
+    if( !_newData.isContinuous() )
+        _newData = _newData.clone();
+    if( _bigMat.type() != CV_32F ){
+        LOG(ERROR) << "Wrong type of the bigMat " << _bigMat.type() << "(should be " << CV_32F << ")";
+        throw Exception();
+    }
+    if( _newData.type() != CV_32F ){
+        LOG(ERROR) << "Wrong type of the _newData " << _newData.type() << "(should be " << CV_32F << ")";
+        throw Exception();
+    }
+    if( _rowNo >= _bigMat.rows ){
+        LOG(ERROR) << "Row number too big, mat size: " << _bigMat.rows << " , attempted to access row #" << _rowNo;
+        throw Exception();
+    }
+    Mat rowData = _newData.reshape(0, 1);
+    for( int col = 0; col < _bigMat.cols; ++col ){
+        _bigMat.at<float>(_rowNo, col) = rowData.at<float>(0, col);
+    }
+}
+
+Mat CDataUtils::unpackRow(cv::Mat& _bigMat, int _rowNo, cv::Size _outSize){
+    DLOG(INFO) << "unpackRow method";
+    if( _bigMat.type() != CV_32F ){
+        LOG(ERROR) << "Wrong type of the bigMat " << _bigMat.type() << "(should be " << CV_32F << ")";
+        throw Exception();
+    }
+    Mat outMat(1,_outSize.height* _outSize.width, CV_32F);
+    for( int colCnt = 0; colCnt < _bigMat.cols; ++colCnt ){
+        outMat.at<float>(0,colCnt) = _bigMat.at<float>(_rowNo, colCnt);
+    }
+    outMat = outMat.reshape(0, _outSize.height);
+    return outMat;
+}

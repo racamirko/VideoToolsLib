@@ -32,20 +32,20 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  *
- *  File:    libvideotools_global.h
+ *  File:    CDataUtils.h
  *  Author:  Mirko Raca <name.lastname@epfl.ch>
  *  Created: January 8, 2014.
  */
+#ifndef CDATAUTILS_H
+#define CDATAUTILS_H
 
-#ifndef LIBVIDEOTOOLS_GLOBAL_H
-#define LIBVIDEOTOOLS_GLOBAL_H
+#include <opencv2/core/core.hpp>
 
-#include <QtCore/qglobal.h>
+class CDataUtils
+{
+public:
+    static void packRow(cv::Mat& _bigMat, int _rowNo, cv::Mat& _newData);
+    static cv::Mat unpackRow(cv::Mat& _bigMat, int _rowNo, cv::Size _outSize);
+};
 
-#if defined(LIBVIDEOTOOLS_LIBRARY)
-#  define LIBVIDEOTOOLSSHARED_EXPORT Q_DECL_EXPORT
-#else
-#  define LIBVIDEOTOOLSSHARED_EXPORT Q_DECL_IMPORT
-#endif
-
-#endif // LIBVIDEOTOOLS_GLOBAL_H
+#endif // CDATAUTILS_H
