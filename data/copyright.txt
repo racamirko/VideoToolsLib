@@ -1,0 +1,5 @@
+grid_faces.jpg  (c) Josh Janssen http://www.flickr.com/photos/mediaflex/
+	Faces
+		Offset: 2,2 px
+		Spacing: 4,4 px (approx)
+		Size:	202, 305 px
