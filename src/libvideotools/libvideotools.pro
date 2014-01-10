@@ -12,7 +12,8 @@ TEMPLATE = lib
 DEFINES += LIBVIDEOTOOLS_LIBRARY
 
 SOURCES += libvideotools.cpp \
-    CDataUtils.cpp
+    CDataUtils.cpp \
+    CPcaCompression.cpp
 
 INCLUDEPATH += /usr/local/include
 LIBS += -lglog -L/usr/local/lib -lopencv_core
@@ -24,7 +25,9 @@ HEADERS += \
     ../../include/libvideotools_global.h \
     ../../include/libvideotools.h \
     ../../include/CDataUtils.h \
-    globalInclude.h
+    globalInclude.h \
+    ../../include/CCompressorInterface.h \
+    ../../include/CPcaCompression.h
 
 unix:!symbian {
     maemo5 {
