@@ -19,6 +19,8 @@ private Q_SLOTS:
     void testCDataUtils_packRow();
     void testCDataUtils_unpackRow();
     void testCDataUtils_eq();
+
+//    void testData
 };
 
 VtlTestAppTest::VtlTestAppTest()
