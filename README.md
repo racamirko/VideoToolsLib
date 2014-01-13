@@ -30,6 +30,13 @@ and a CPcaCompression class which follows that. Simple steps:
 	cv::Mat bigData = c.decompress(smallData); // simple, no?
 </pre>
 
+Dependencies
+============
+ - OpenCV (used 2.4)
+ - glog (google logging library)
+ - qt (for testing and qmake)
+ - boost
+
 Contact
 =======
 
