@@ -1,7 +1,7 @@
 VideoToolsLib
 =============
 
-Collection of utilities for video-processing. It's a mixture of ML-algorithms usually purposed for CV usage. It will mostly rely on OpenCV.
+VideoToolsLib is an attempt to follow the DRY (don't reapeat yourself)  principle. It'll be a collection of developt independent code components that I find useful from projec to project. It'll usually be some  ML-algorithms purposed for CV (computer vision) usage, and it will heavly rely on OpenCV.
 
 Compress data
 -------------

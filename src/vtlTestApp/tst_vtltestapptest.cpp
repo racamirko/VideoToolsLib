@@ -4,6 +4,8 @@
 #include <glog/logging.h>
 #include <CDataUtils.h>
 #include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include "CDataSamplerImg.h"
 
 using namespace cv;
 
@@ -19,6 +21,7 @@ private Q_SLOTS:
     void testCDataUtils_packRow();
     void testCDataUtils_unpackRow();
     void testCDataUtils_eq();
+    void testSampler_test1();
 
 //    void testData
 };
@@ -52,6 +55,14 @@ void VtlTestAppTest::testCDataUtils_eq(){
         mat3 = ( Mat_<float>(3,3,CV_32F) <<  2.0f, 2.0f, 3.0f, 4.0f);
     QVERIFY( CDataUtils::eq(mat1, mat2) == true );
     QVERIFY( CDataUtils::eq(mat1, mat3) == false );
+}
+
+void VtlTestAppTest::testSampler_test1(){
+    CDataSamplerImg sampler = CDataSamplerImg("/home/raca/repo/outside_projects/VideoToolsLib/data/grid_faces.jpg", Size(202, 305) , Size(3,3) );
+    for( Mat sample : sampler ){
+        imshow("testwnd",sample);
+        waitKey(5000);
+    }
 }
 
 QTEST_APPLESS_MAIN(VtlTestAppTest)

@@ -24,8 +24,9 @@ else:unix: LIBS += -L$$PWD/../../../../../build/build-libvideotools-Qt_4_8_4_Sys
 
 INCLUDEPATH += $$PWD/../../include /usr/local/include
 DEPENDPATH += $$PWD/../../include
+QMAKE_CXXFLAGS += -std=c++0x
 
-LIBS += -lglog -L/usr/local/lib -lopencv_core -lopencv_highgui
+LIBS += -lglog -L/usr/local/lib -lopencv_core -lopencv_highgui -lopencv_imgproc
 
 HEADERS += \
     IDataSampler.h \
