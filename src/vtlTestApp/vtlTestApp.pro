@@ -30,4 +30,5 @@ LIBS += -lglog -L/usr/local/lib -lopencv_core -lopencv_highgui -lopencv_imgproc
 
 HEADERS += \
     IDataSampler.h \
-    CDataSamplerImg.h
+    CDataSamplerImg.h \
+    externalParams.h

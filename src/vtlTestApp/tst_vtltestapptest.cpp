@@ -3,9 +3,13 @@
 
 #include <glog/logging.h>
 #include <CDataUtils.h>
+#include <CXGrayscale.h>
+#include <CXNormSize.h>
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include "CDataSamplerImg.h"
+
+#include "externalParams.h"
 
 using namespace cv;
 
@@ -22,8 +26,8 @@ private Q_SLOTS:
     void testCDataUtils_unpackRow();
     void testCDataUtils_eq();
     void testSampler_test1();
-
-//    void testData
+    // pipeline tests
+    void testNormImgsPipeline();
 };
 
 VtlTestAppTest::VtlTestAppTest()
@@ -57,10 +61,24 @@ void VtlTestAppTest::testCDataUtils_eq(){
     QVERIFY( CDataUtils::eq(mat1, mat3) == false );
 }
 
+/* passed, left for usage example */
 void VtlTestAppTest::testSampler_test1(){
-    CDataSamplerImg sampler = CDataSamplerImg("/home/raca/repo/outside_projects/VideoToolsLib/data/grid_faces.jpg", Size(202, 305) , Size(3,3) );
-    for( Mat sample : sampler ){
-        imshow("testwnd",sample);
+//    CDataSamplerImg sampler = CDataSamplerImg(IMG_SAMPLES_GRID_FILENAME,  IMG_SAMPLES_GRID_SIZE, IMG_SAMPLES_GRID_SPACING );
+//    for( Mat sample : sampler ){
+//        imshow("testwnd",sample);
+//        waitKey(5000);
+//    }
+}
+
+void VtlTestAppTest::testNormImgsPipeline(){
+    CDataSamplerImg sampler = CDataSamplerImg(IMG_SAMPLES_GRID_FILENAME,  IMG_SAMPLES_GRID_SIZE, IMG_SAMPLES_GRID_SPACING );
+    // create pipeline
+    IXfmr pipeStart;
+    pipeStart.add(new CXNormSize(Size(100, 100))).add(new CXGrayscale());
+    // run test
+    for(Mat sample : sampler){
+        Mat outSample = pipeStart.transform(sample);
+        imshow("testwnd", outSample);
         waitKey(5000);
     }
 }
