@@ -40,8 +40,9 @@
 #define CXGRAYSCALE_H
 
 #include "IXfmr.h"
+#include "../libvideotools_global.h"
 
-class CXGrayscale : public IXfmr {
+class LIBVIDEOTOOLSSHARED_EXPORT CXGrayscale : public IXfmr {
 public:
     CXGrayscale() = default;
 

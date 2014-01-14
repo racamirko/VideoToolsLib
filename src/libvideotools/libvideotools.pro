@@ -33,9 +33,12 @@ HEADERS += \
     ../../include/CPcaCompression.h \
     ../../include/CXNormSize.h \
     CXGrayscale.h \
-    ../../include/CXGrayscale.h \
     ../../include/IXfmr.h \
-    CXCrop.h
+    CXCrop.h \
+    ../../include/imgTransformers/IXfmr.h \
+    ../../include/imgTransformers/CXNormSize.h \
+    ../../include/imgTransformers/CXGrayscale.h \
+    ../../include/imgTransformers/CXCrop.h
 
 unix:!symbian {
     maemo5 {

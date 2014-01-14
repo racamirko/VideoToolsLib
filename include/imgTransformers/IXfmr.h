@@ -40,7 +40,7 @@
 #ifndef IXFMR_H
 #define IXFMR_H
 
-#include "libvideotools_global.h"
+#include "../libvideotools_global.h"
 
 #include <opencv2/core/core.hpp>
 

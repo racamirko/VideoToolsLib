@@ -40,7 +40,7 @@
 #ifndef CXNORMSIZE_H
 #define CXNORMSIZE_H
 
-#include "libvideotools_global.h"
+#include "../libvideotools_global.h"
 #include "IXfmr.h"
 
 class LIBVIDEOTOOLSSHARED_EXPORT CXNormSize : public IXfmr

@@ -1,4 +1,4 @@
-#include "../../include/CXNormSize.h"
+#include "../../include/imgTransformers/CXNormSize.h"
 
 #include <opencv2/imgproc/imgproc.hpp>
 #include "globalInclude.h"
