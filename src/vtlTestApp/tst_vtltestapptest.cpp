@@ -79,7 +79,7 @@ void VtlTestAppTest::testNormImgsPipeline(){
     for(Mat sample : sampler){
         Mat outSample = pipeStart.transform(sample);
         imshow("testwnd", outSample);
-        waitKey(5000);
+        waitKey(1);
     }
 }
 

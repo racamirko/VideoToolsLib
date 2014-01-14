@@ -15,7 +15,8 @@ SOURCES += libvideotools.cpp \
     CDataUtils.cpp \
     CPcaCompression.cpp \
     CXNormSize.cpp \
-    CXGrayscale.cpp
+    CXGrayscale.cpp \
+    CXCrop.cpp
 
 INCLUDEPATH += /usr/local/include
 LIBS += -lglog -L/usr/local/lib -lopencv_core -lopencv_imgproc
@@ -33,7 +34,8 @@ HEADERS += \
     ../../include/CXNormSize.h \
     CXGrayscale.h \
     ../../include/CXGrayscale.h \
-    ../../include/IXfmr.h
+    ../../include/IXfmr.h \
+    CXCrop.h
 
 unix:!symbian {
     maemo5 {
