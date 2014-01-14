@@ -3,8 +3,10 @@
 
 #include <glog/logging.h>
 #include <CDataUtils.h>
-#include <CXGrayscale.h>
-#include <CXNormSize.h>
+//#include <imgTransformers/all.h>
+#include <imgTransformers/CXCrop.h>
+#include <imgTransformers/CXNormSize.h>
+#include <imgTransformers/CXGrayscale.h>
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include "CDataSamplerImg.h"
@@ -28,6 +30,7 @@ private Q_SLOTS:
     void testSampler_test1();
     // pipeline tests
     void testNormImgsPipeline();
+    void testCropImgsPipeline();
 };
 
 VtlTestAppTest::VtlTestAppTest()
@@ -63,11 +66,11 @@ void VtlTestAppTest::testCDataUtils_eq(){
 
 /* passed, left for usage example */
 void VtlTestAppTest::testSampler_test1(){
-//    CDataSamplerImg sampler = CDataSamplerImg(IMG_SAMPLES_GRID_FILENAME,  IMG_SAMPLES_GRID_SIZE, IMG_SAMPLES_GRID_SPACING );
-//    for( Mat sample : sampler ){
-//        imshow("testwnd",sample);
-//        waitKey(5000);
-//    }
+    CDataSamplerImg sampler = CDataSamplerImg(IMG_SAMPLES_GRID_FILENAME,  IMG_SAMPLES_GRID_SIZE, IMG_SAMPLES_GRID_SPACING );
+    for( Mat sample : sampler ){
+        imshow("testwnd",sample);
+        waitKey(1);
+    }
 }
 
 void VtlTestAppTest::testNormImgsPipeline(){
@@ -78,6 +81,18 @@ void VtlTestAppTest::testNormImgsPipeline(){
     // run test
     for(Mat sample : sampler){
         Mat outSample = pipeStart.transform(sample);
+        imshow("testwnd", outSample);
+        waitKey(1);
+    }
+}
+
+void VtlTestAppTest::testCropImgsPipeline(){
+    CDataSamplerImg sampler = CDataSamplerImg(IMG_SAMPLES_GRID_FILENAME,  IMG_SAMPLES_GRID_SIZE, IMG_SAMPLES_GRID_SPACING );
+    // create pipeline
+    CXCrop cropper(Rect(100, 100, 100, 100));
+    // run test
+    for(Mat sample : sampler){
+        Mat outSample = cropper.transform(sample);
         imshow("testwnd", outSample);
         waitKey(1);
     }

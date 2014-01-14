@@ -38,7 +38,8 @@ HEADERS += \
     ../../include/imgTransformers/IXfmr.h \
     ../../include/imgTransformers/CXNormSize.h \
     ../../include/imgTransformers/CXGrayscale.h \
-    ../../include/imgTransformers/CXCrop.h
+    ../../include/imgTransformers/CXCrop.h \
+    ../../include/imgTransformers/all.h
 
 unix:!symbian {
     maemo5 {
