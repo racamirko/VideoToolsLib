@@ -45,6 +45,21 @@ A bunch of detection in the format of pairs std::pair<cv::Rect, double> and you 
 
 Voila!
 
+Input transformations
+---------------------
+
+There should be a bunch of transformer classes that you can chain-up to get the desired input. Currently:
+ - crop
+ - grayscale conversion
+ - image size normalization
+
+Which can be used as such:
+<pre>
+    IXfmr pipeStart;
+    pipeStart.add(new CXNormSize(Size(100, 100))).add(new CXGrayscale());
+    Mat outSample = pipeStart.transform(inSample);
+</pre>
+
 Dependencies
 ============
  - OpenCV (used 2.4)
