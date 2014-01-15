@@ -3,12 +3,13 @@
 
 #include <glog/logging.h>
 #include <CDataUtils.h>
-//#include <imgTransformers/all.h>
-#include <imgTransformers/CXCrop.h>
-#include <imgTransformers/CXNormSize.h>
-#include <imgTransformers/CXGrayscale.h>
+#include <imgTransformers/all.h>
+#include <CPcaCompression.h>
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+
+#include <iostream>
 #include "CDataSamplerImg.h"
 
 #include "externalParams.h"
@@ -31,6 +32,8 @@ private Q_SLOTS:
     // pipeline tests
     void testNormImgsPipeline();
     void testCropImgsPipeline();
+    // PCA compression
+    void testPcaCompressionPrecision();
 };
 
 VtlTestAppTest::VtlTestAppTest()
@@ -94,6 +97,32 @@ void VtlTestAppTest::testCropImgsPipeline(){
     for(Mat sample : sampler){
         Mat outSample = cropper.transform(sample);
         imshow("testwnd", outSample);
+        waitKey(1);
+    }
+}
+
+void VtlTestAppTest::testPcaCompressionPrecision(){
+    CDataSamplerImg sampler = CDataSamplerImg(IMG_SAMPLES_GRID_FILENAME,  IMG_SAMPLES_GRID_SIZE, IMG_SAMPLES_GRID_SPACING );
+    IXfmr pipeStart;
+    pipeStart.add(new CXNormSize(Size(100, 100))).add(new CXGrayscale());
+    CPcaCompression compressor(80, 15, Size(100,100));
+    // PCA-training
+    for(Mat sample : sampler){
+        Mat normSample = pipeStart.transform(sample);
+        compressor.addSample(normSample);
+    }
+    double prec = compressor.process(true);
+    std::cout << "Precission = " << prec << std::endl;
+    // compress-decompress tests
+    for(Mat sample : sampler){
+        Mat normSample = pipeStart.transform(sample);
+        Mat compSample = compressor.compress(normSample);
+        Mat decompSample = compressor.decompress(compSample);
+        Mat wholeImage = Mat( normSample.rows, normSample.cols + decompSample.cols, CV_8U );
+        normSample.copyTo( wholeImage( Rect(0,0, normSample.cols, normSample.rows ) ) );
+        decompSample.copyTo( wholeImage( Rect(normSample.cols, 0, decompSample.cols, decompSample.rows ) ) );
+        resize(wholeImage, wholeImage, Size(), 2.0f, 2.0f);
+        imshow("testwnd", wholeImage);
         waitKey(1);
     }
 }

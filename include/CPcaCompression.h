@@ -54,20 +54,20 @@ protected:
     cv::PCA mPca;
 
     void init(int _numOfSamples, cv::Size _sampleSize);
+    double testCompressionPrecission(bool _withDisplay = false);
     void dropTraining();
     void checkAndPrepareSample(cv::Mat& _sample);
 public:
     CPcaCompression(int _numOfComponents, int _numOfSamples, cv::Size _sampleSize);
     // training related methods
     void addSample(cv::Mat _sample);
-    void process();
+    double process(bool _withDisplay = false);
     // main interface
     cv::Mat compress(cv::Mat _sample);
     cv::Mat decompress(cv::Mat _compressedSample, bool _convertTo8Bit = false);
     // information & testing
     cv::Mat getPCAMean(bool _asImage = false);
     void getEigenVectors(std::vector<cv::Mat> _outVec, bool _asImage = false);
-    double testCompressionPrecission(bool _withDisplay = false);
     int getNumOfComponents();
 };
 

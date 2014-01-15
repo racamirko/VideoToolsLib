@@ -71,11 +71,13 @@ void CPcaCompression::addSample(cv::Mat _sample){
     CDataUtils::packRow(mBigSampleMat, mLastSample++, _sample);
 }
 
-void CPcaCompression::process(){
+double CPcaCompression::process(bool _withDisplay){
     DLOG(INFO) << "process()";
     mBigSampleMat = mBigSampleMat(Range(0,mLastSample), Range::all());
     mPca = PCA(mBigSampleMat, Mat(), CV_PCA_DATA_AS_ROW, mNumOfPcaComponents);
+    double score = testCompressionPrecission(_withDisplay);
     dropTraining();
+    return score;
 }
 
 cv::Mat CPcaCompression::compress(cv::Mat _sample){
