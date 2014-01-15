@@ -30,6 +30,21 @@ and a CPcaCompression class which follows that. Simple steps:
 	cv::Mat bigData = c.decompress(smallData); // simple, no?
 </pre>
 
+NMS
+---
+
+A bunch of detection in the format of pairs std::pair<cv::Rect, double> and you need to NMS it? No problem.
+
+<pre>
+	tVecDetections input;
+	input.push_back(tDetectionPair(Rect(12,12,2,2), 0.2));
+	...
+	CFilterNMS filter(0.8);
+	filter.process(input);
+</pre>
+
+Voila!
+
 Dependencies
 ============
  - OpenCV (used 2.4)

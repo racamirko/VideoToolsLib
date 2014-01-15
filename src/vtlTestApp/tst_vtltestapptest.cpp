@@ -3,8 +3,10 @@
 
 #include <glog/logging.h>
 #include <CDataUtils.h>
+#include <string>
 #include <imgTransformers/all.h>
 #include <CPcaCompression.h>
+#include <filters/CFilterNMS.h>
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -34,6 +36,8 @@ private Q_SLOTS:
     void testCropImgsPipeline();
     // PCA compression
     void testPcaCompressionPrecision();
+    // filter testss
+    void testPostNMS();
 };
 
 VtlTestAppTest::VtlTestAppTest()
@@ -124,6 +128,50 @@ void VtlTestAppTest::testPcaCompressionPrecision(){
         resize(wholeImage, wholeImage, Size(), 2.0f, 2.0f);
         imshow("testwnd", wholeImage);
         waitKey(1);
+    }
+}
+
+void VtlTestAppTest::testPostNMS(){
+    tVecDetections input;
+    tVecDetections expectedOutput;
+    // put data in
+    input.push_back(tDetectionPair(Rect(12,12,2,2), 0.2));
+    input.push_back(tDetectionPair(Rect(10,10,20,20), 1.0));
+    input.push_back(tDetectionPair(Rect(12,12,20,20), 0.8));
+    input.push_back(tDetectionPair(Rect(28,28,5,5), 1.2));
+        // group 2
+    input.push_back(tDetectionPair(Rect(40,40,10,10), 1.0));
+    input.push_back(tDetectionPair(Rect(40,13,30,30), 1.0));
+        // group 3
+    input.push_back(tDetectionPair(Rect(5,50,2,2), 1.0));
+
+    // expected output
+    expectedOutput.push_back(tDetectionPair(Rect(10,10,20,20), 1.0));
+    expectedOutput.push_back(tDetectionPair(Rect(28,28,5,5), 1.2));
+    expectedOutput.push_back(tDetectionPair(Rect(40,40,10,10), 1.0));
+    expectedOutput.push_back(tDetectionPair(Rect(40,13,30,30), 1.0));
+    expectedOutput.push_back(tDetectionPair(Rect(5,50,2,2), 1.0));
+
+    // main test
+    CFilterNMS filter(0.8);
+    filter.process(input);
+    char errorMsgBuffer[10000];
+
+    // check
+    sprintf( errorMsgBuffer, "Ouput wrong size: %d, expected %d", input.size(), expectedOutput.size());
+    QVERIFY2( expectedOutput.size() == input.size(), errorMsgBuffer );
+    for( tDetectionPair& detection : expectedOutput ){
+        bool found = false;
+        for( tDetectionPair& remainingElem : input ){
+            if( remainingElem == detection ){
+                found = true;
+                break;
+            }
+        }
+        if( !found ) // prepare error message
+            sprintf(errorMsgBuffer, "Could not find detection (%d, %d, %d, %d) = %.2f",
+                detection.first.x, detection.first.y, detection.first.width, detection.first.height, detection.second);
+        QVERIFY2( found, errorMsgBuffer );
     }
 }
 
