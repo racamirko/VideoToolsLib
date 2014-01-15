@@ -16,7 +16,8 @@ SOURCES += libvideotools.cpp \
     CPcaCompression.cpp \
     CXNormSize.cpp \
     CXGrayscale.cpp \
-    CXCrop.cpp
+    CXCrop.cpp \
+    CFilterNMS.cpp
 
 INCLUDEPATH += /usr/local/include
 LIBS += -lglog -L/usr/local/lib -lopencv_core -lopencv_imgproc
@@ -39,7 +40,10 @@ HEADERS += \
     ../../include/imgTransformers/CXNormSize.h \
     ../../include/imgTransformers/CXGrayscale.h \
     ../../include/imgTransformers/CXCrop.h \
-    ../../include/imgTransformers/all.h
+    ../../include/imgTransformers/all.h \
+    ../../include/filters/CFilterNMS.h \
+    ../../include/filters/IGenericPostFilter.h \
+    ../../include/filters/IGenericPreFilter.h
 
 unix:!symbian {
     maemo5 {
