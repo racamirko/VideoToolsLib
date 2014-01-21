@@ -39,6 +39,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <exception>
 
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/calib3d/calib3d.hpp>
@@ -56,12 +57,12 @@ using namespace cv;
 namespace po = boost::program_options;
 
 // input preparations
-void getPointsFromVideoFile( string _calibVideo, Size _boardSize, vector<vector<Point2f>>& imagePts, Size& _imgSize,
+void getPointsFromVideoFile( string _calibVideo, Size _boardSize, vector<vector<Point2f>>& _imagePts, Size& _imgSize,
                              unsigned int _delayPeriod = 50, unsigned int _framesToCollect = 14,
                              bool _showImg = false );
-void getPointsFromFolderImgs( string _folder, Size _boardSize, vector<vector<Point2f>>& imagePts, Size& _imgSize,
+void getPointsFromFolderImgs( string _folder, Size _boardSize, vector<vector<Point2f>>& _imagePts, Size& _imgSize,
                              unsigned int _framesToCollect = 14, bool _showImg = false );
-void getPointsFromCam( int _camId, Size _boardSize, vector<vector<Point2f>>& imagePts, Size& _imgSize,
+void getPointsFromCam( int _camId, Size _boardSize, vector<vector<Point2f>>& _imagePts, Size& _imgSize,
                              unsigned int _delayPeriod = 50, unsigned int _framesToCollect = 14,
                              bool _showImg = false );
 
@@ -81,11 +82,11 @@ int main(int argc, char* argv[]){
 
     // process variables
     vector<vector<Point2f>> imagePts;
-    Size boardSize = Size(7,10);
+    Size boardSize = Size(7,10); // Size(6,7);
     Size imgSize; // received from the functions
     unsigned int numToCollect = 14;
     unsigned int delayPeriod = 50;
-    bool verbose = false;
+    bool verbose = true;
 
     // output variables
     Mat camMat, distCoef;
@@ -110,7 +111,7 @@ int main(int argc, char* argv[]){
     return 0;
 }
 
-void getPointsFromVideoFile( string _calibVideo, Size _boardSize, vector<vector<Point2f>>& imagePts, Size& _imgSize,
+void getPointsFromVideoFile( string _calibVideo, Size _boardSize, vector<vector<Point2f>>& _imagePts, Size& _imgSize,
                              unsigned int _delayPeriod, unsigned int _framesToCollect,
                              bool _showImg )
 {
@@ -118,6 +119,7 @@ void getPointsFromVideoFile( string _calibVideo, Size _boardSize, vector<vector<
     vector<Point2f> pointbuf;
     int delayFrames = 0;
 
+    _imagePts.clear();
     VideoCapture vc(_calibVideo);
     if( !vc.isOpened()){
         LOG(FATAL) << "Could not open file " << _calibVideo;
@@ -138,8 +140,8 @@ void getPointsFromVideoFile( string _calibVideo, Size _boardSize, vector<vector<
         }
 
         if( getPoints(frame, _boardSize, pointbuf, _showImg) ){
-            imagePts.push_back(pointbuf);
-            if( imagePts.size() < _framesToCollect )
+            _imagePts.push_back(pointbuf);
+            if( _imagePts.size() < _framesToCollect )
                 delayFrames = _delayPeriod;
             else
                 break;
@@ -149,16 +151,44 @@ void getPointsFromVideoFile( string _calibVideo, Size _boardSize, vector<vector<
     vc.release();
 }
 
-void getPointsFromFolderImgs( string _folder, Size _boardSize, vector<vector<Point2f>>& imagePts, Size& _imgSize,
+void getPointsFromFolderImgs( string _folder, Size _boardSize, vector<vector<Point2f>>& _imagePts, Size& _imgSize,
                              unsigned int _framesToCollect, bool _showImg )
 {
+    namespace fs = boost::filesystem;
+    fs::directory_iterator end_iter;
+    vector<Point2f> pointbuf;
+
+    _imagePts.clear();
+    if ( !fs::exists(_folder) || !fs::is_directory(_folder))
+    {
+        LOG(ERROR) << "Folder not found: " << _folder;
+        return;
+    }
+
+    for( fs::directory_iterator dir_iter(_folder) ; dir_iter != end_iter ; ++dir_iter)
+    {
+        if (fs::is_regular_file(dir_iter->status()) )//&& !boost::filesystem::extension(*dir_iter).compare("jpg") )
+        {
+            DLOG(INFO) << "Loading file for frame " << _framesToCollect << " : " << dir_iter->path().native();
+            Mat tmpImg = imread(dir_iter->path().native());
+            _imgSize.width = tmpImg.cols; _imgSize.height = tmpImg.rows;
+            if( _framesToCollect > 0 ){
+                if( getPoints(tmpImg, _boardSize, pointbuf, _showImg) ){
+                    _imagePts.push_back(pointbuf);
+                    _framesToCollect--;
+                }
+            }
+        }
+    }
     destroyAllWindows();
 }
 
-void getPointsFromCam( int _camId, Size _boardSize, vector<vector<Point2f>>& imagePts, Size& _imgSize,
+void getPointsFromCam( int _camId, Size _boardSize, vector<vector<Point2f>>& _imagePts, Size& _imgSize,
                              unsigned int _delayPeriod, unsigned int _framesToCollect,
                              bool _showImg)
 {
+    LOG(FATAL) << "getPointsFromCam not implemented";
+    throw std::runtime_error("Not implemented");
     destroyAllWindows();
 }
 
@@ -167,6 +197,10 @@ bool getPoints( Mat& _frame, Size _boardSize, vector<Point2f>& _pointbuf, bool _
     _pointbuf.clear();
     if( _frame.channels() > 1 ){
         cvtColor(_frame, _frame, CV_BGR2GRAY);
+    }
+    if(_showImg){
+        imshow("dbgwnd", _frame);
+        waitKey(100);
     }
     bool found = findChessboardCorners( _frame, _boardSize, _pointbuf,
                         CV_CALIB_CB_ADAPTIVE_THRESH | CV_CALIB_CB_FAST_CHECK | CV_CALIB_CB_NORMALIZE_IMAGE);
