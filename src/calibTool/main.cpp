@@ -61,16 +61,16 @@ void getPointsFromVideoFile( string _calibVideo, Size _boardSize, vector<vector<
                              unsigned int _delayPeriod = 50, unsigned int _framesToCollect = 14,
                              bool _showImg = false );
 void getPointsFromFolderImgs( string _folder, Size _boardSize, vector<vector<Point2f>>& _imagePts, Size& _imgSize,
-                             unsigned int _framesToCollect = 14, bool _showImg = false );
+                              unsigned int _framesToCollect = 14, bool _showImg = false );
 void getPointsFromCam( int _camId, Size _boardSize, vector<vector<Point2f>>& _imagePts, Size& _imgSize,
                              unsigned int _delayPeriod = 50, unsigned int _framesToCollect = 14,
                              bool _showImg = false );
 
 // main
-void calibrateInternal(vector<vector<Point2f>>& _imagePts, Size _imgSize, Size _boardSize, Mat& _cameraMatrix, Mat& _distCoef);
+void calibrateInternal(vector<vector<Point2f>>& _imagePts, Size _imgSize, Size _boardSize, float _squareSizeInMm, Mat& _cameraMatrix, Mat& _distCoef);
 // helper functions
 bool getPoints( Mat& _frame, Size _boardSize, vector<Point2f>& _pointbuf, bool _showImg );
-void generateObjectPts(vector< vector<Point3f> > & _vec, Size _boardSize, int _numOfSamples);
+void generateObjectPts(vector< vector<Point3f> > & _vec, Size _boardSize, float _squareSizeInMm, int _numOfSamples);
 void parseArguments( int _argc, char* _argv[], string* _inSrc, string* _outFilename);
 bool isNumber(const std::string& s);
 void writeYaml(std::string _outFilename, cv::Mat& _camMat, cv::Mat& _distCoef);
@@ -82,7 +82,8 @@ int main(int argc, char* argv[]){
 
     // process variables
     vector<vector<Point2f>> imagePts;
-    Size boardSize = Size(7,10); // Size(6,7);
+    Size boardSize = Size(6,7); // Size(6,7); Size(7,10);
+    float checkerSquareSize = 26.0f; // mm
     Size imgSize; // received from the functions
     unsigned int numToCollect = 14;
     unsigned int delayPeriod = 50;
@@ -103,7 +104,7 @@ int main(int argc, char* argv[]){
     }
 
     // main process
-    calibrateInternal(imagePts, imgSize, boardSize, camMat, distCoef );
+    calibrateInternal(imagePts, imgSize, boardSize, checkerSquareSize, camMat, distCoef );
 
     // write output
     writeYaml(outFilename, camMat, distCoef);
@@ -159,16 +160,14 @@ void getPointsFromFolderImgs( string _folder, Size _boardSize, vector<vector<Poi
     vector<Point2f> pointbuf;
 
     _imagePts.clear();
-    if ( !fs::exists(_folder) || !fs::is_directory(_folder))
-    {
+    if ( !fs::exists(_folder) || !fs::is_directory(_folder)){
         LOG(ERROR) << "Folder not found: " << _folder;
         return;
     }
 
     for( fs::directory_iterator dir_iter(_folder) ; dir_iter != end_iter ; ++dir_iter)
     {
-        if (fs::is_regular_file(dir_iter->status()) )//&& !boost::filesystem::extension(*dir_iter).compare("jpg") )
-        {
+        if (fs::is_regular_file(dir_iter->status()) ){ //&& !boost::filesystem::extension(*dir_iter).compare("jpg") )
             DLOG(INFO) << "Loading file for frame " << _framesToCollect << " : " << dir_iter->path().native();
             Mat tmpImg = imread(dir_iter->path().native());
             _imgSize.width = tmpImg.cols; _imgSize.height = tmpImg.rows;
@@ -221,11 +220,11 @@ bool getPoints( Mat& _frame, Size _boardSize, vector<Point2f>& _pointbuf, bool _
     return found;
 }
 
-void calibrateInternal(vector<vector<Point2f>>& _imagePts, Size _imgSize, Size _boardSize, Mat& _cameraMatrix, Mat& _distCoef){
+void calibrateInternal(vector<vector<Point2f>>& _imagePts, Size _imgSize, Size _boardSize, float _squareSizeInMm, Mat& _cameraMatrix, Mat& _distCoef){
     vector<Mat> rvecs; // don't really care for this, too innacurate for now
     vector<Mat> tvecs;
     vector<vector<Point3f>> objectPts;
-    generateObjectPts(objectPts, _boardSize, _imagePts.size());
+    generateObjectPts(objectPts, _boardSize, _squareSizeInMm, _imagePts.size());
 
     double rms = calibrateCamera(objectPts, _imagePts, _imgSize, _cameraMatrix, _distCoef, rvecs, tvecs, CV_CALIB_FIX_K4|CV_CALIB_FIX_K5);
     LOG(INFO) << "RMS error reported by calibrateCamera: " << rms;
@@ -240,13 +239,12 @@ void calibrateInternal(vector<vector<Point2f>>& _imagePts, Size _imgSize, Size _
         LOG(INFO) << "\t" << _distCoef.at<double>(i);
 }
 
-void generateObjectPts(vector< vector<Point3f> > & _vec, Size _boardSize, int _numOfSamples){
-    float squareSize = 1.0f;
+void generateObjectPts(vector< vector<Point3f> > & _vec, Size _boardSize, float _squareSizeInMm, int _numOfSamples){
     _vec.clear();
     vector<Point3f> tmpVec;
     for( int i = 0; i < _boardSize.height; i++ )
         for( int j = 0; j < _boardSize.width; j++ )
-            tmpVec.push_back(Point3f(float(j*squareSize), float(i*squareSize), 0));
+            tmpVec.push_back(Point3f(float(j*_squareSizeInMm), float(i*_squareSizeInMm), 0));
     for( int i = 0; i < _numOfSamples; ++i )
         _vec.push_back(tmpVec);
 }
@@ -279,14 +277,14 @@ void parseArguments( int _argc, char* _argv[], // input arguments
     }
 
     if( vm.count("input") == 0 ){
-        cout << "No input source specified. Check --help for usage" << endl;
-        LOG(FATAL) << "No source specified.";
+        std::cerr << "No input source specified. Check --help for usage" << endl;
+//        LOG(FATAL) << "No source specified.";
         exit(-1);
     }
 
     if( vm.count("output") == 0 ){
-        cout << "No output filename specified. Check --help for usage" << endl;
-        LOG(FATAL) << "No output filename specified.";
+        std::cerr << "No output filename specified. Check --help for usage" << endl;
+//        LOG(FATAL) << "No output filename specified.";
         exit(-2);
     }
 }
