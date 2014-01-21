@@ -32,44 +32,53 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  *
- *  File:    CPcaCompression.h
+ *  File:    CDataUtils.cpp
  *  Author:  Mirko Raca <name.lastname@epfl.ch>
- *  Created: January 10, 2014.
+ *  Created: January 8, 2014.
  */
-#ifndef CPCACOMPRESSION_H
-#define CPCACOMPRESSION_H
 
-#include <opencv2/core/core.hpp>
-#include <vector>
+#include <../../include/CDataUtils.h>
 
-#include "libvideotools_global.h"
-#include "../../include/CCompressorInterface.h"
+using namespace cv;
 
-class LIBVIDEOTOOLSSHARED_EXPORT CPcaCompression : public CCompressorInterface
-{
-protected:
-    cv::Mat mBigSampleMat;
-    int mLastSample;
-    int mNumOfPcaComponents;
-    cv::Size mSampleSize;
-    cv::PCA mPca;
+#include "globalInclude.h"
 
-    void init(int _numOfSamples, cv::Size _sampleSize);
-    double testCompressionPrecission(bool _withDisplay = false);
-    void dropTraining();
-    void checkAndPrepareSample(cv::Mat& _sample);
-public:
-    CPcaCompression(int _numOfComponents, int _numOfSamples, cv::Size _sampleSize);
-    // training related methods
-    void addSample(cv::Mat _sample);
-    double process(bool _withDisplay = false);
-    // main interface
-    cv::Mat compress(cv::Mat _sample);
-    cv::Mat decompress(cv::Mat _compressedSample, bool _convertTo8Bit = false);
-    // information & testing
-    cv::Mat getPCAMean(bool _asImage = false);
-    void getEigenVectors(std::vector<cv::Mat> _outVec, bool _asImage = false);
-    int getNumOfComponents();
-};
+void CDataUtils::packRow(cv::Mat& _bigMat, int _rowNo, cv::Mat& _newData){
+    if( !_newData.isContinuous() )
+        _newData = _newData.clone();
+    if( _bigMat.type() != CV_32F ){
+        LOG(ERROR) << "Wrong type of the bigMat " << _bigMat.type() << "(should be " << CV_32F << ")";
+        throw Exception();
+    }
+    if( _newData.type() != CV_32F ){
+        LOG(ERROR) << "Wrong type of the _newData " << _newData.type() << "(should be " << CV_32F << ")";
+        throw Exception();
+    }
+    if( _rowNo >= _bigMat.rows ){
+        LOG(ERROR) << "Row number too big, mat size: " << _bigMat.rows << " , attempted to access row #" << _rowNo;
+        throw Exception();
+    }
+    Mat rowData = _newData.reshape(0, 1);
+    for( int col = 0; col < _bigMat.cols; ++col ){
+        _bigMat.at<float>(_rowNo, col) = rowData.at<float>(0, col);
+    }
+}
 
-#endif // CPCACOMPRESSION_H
+Mat CDataUtils::unpackRow(cv::Mat& _bigMat, int _rowNo, cv::Size _outSize){
+    DLOG(INFO) << "unpackRow method";
+    if( _bigMat.type() != CV_32F ){
+        LOG(ERROR) << "Wrong type of the bigMat " << _bigMat.type() << "(should be " << CV_32F << ")";
+        throw Exception();
+    }
+    Mat outMat(1,_outSize.height* _outSize.width, CV_32F);
+    for( int colCnt = 0; colCnt < _bigMat.cols; ++colCnt ){
+        outMat.at<float>(0,colCnt) = _bigMat.at<float>(_rowNo, colCnt);
+    }
+    outMat = outMat.reshape(0, _outSize.height);
+    return outMat;
+}
+
+bool CDataUtils::eq(const cv::Mat& _mat1, const cv::Mat& _mat2){
+    Mat diff = (_mat1 != _mat2);
+    return ( countNonZero(diff) == 0 );
+}

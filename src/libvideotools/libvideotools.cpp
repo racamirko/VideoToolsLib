@@ -32,44 +32,14 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  *
- *  File:    CPcaCompression.h
+ *  File:    libvideotools.cpp
  *  Author:  Mirko Raca <name.lastname@epfl.ch>
- *  Created: January 10, 2014.
+ *  Created: January 8, 2014.
  */
-#ifndef CPCACOMPRESSION_H
-#define CPCACOMPRESSION_H
 
-#include <opencv2/core/core.hpp>
-#include <vector>
+#include <../../include/libvideotools.h>
 
-#include "libvideotools_global.h"
-#include "../../include/CCompressorInterface.h"
 
-class LIBVIDEOTOOLSSHARED_EXPORT CPcaCompression : public CCompressorInterface
-{
-protected:
-    cv::Mat mBigSampleMat;
-    int mLastSample;
-    int mNumOfPcaComponents;
-    cv::Size mSampleSize;
-    cv::PCA mPca;
+Libvideotools::Libvideotools(){
 
-    void init(int _numOfSamples, cv::Size _sampleSize);
-    double testCompressionPrecission(bool _withDisplay = false);
-    void dropTraining();
-    void checkAndPrepareSample(cv::Mat& _sample);
-public:
-    CPcaCompression(int _numOfComponents, int _numOfSamples, cv::Size _sampleSize);
-    // training related methods
-    void addSample(cv::Mat _sample);
-    double process(bool _withDisplay = false);
-    // main interface
-    cv::Mat compress(cv::Mat _sample);
-    cv::Mat decompress(cv::Mat _compressedSample, bool _convertTo8Bit = false);
-    // information & testing
-    cv::Mat getPCAMean(bool _asImage = false);
-    void getEigenVectors(std::vector<cv::Mat> _outVec, bool _asImage = false);
-    int getNumOfComponents();
-};
-
-#endif // CPCACOMPRESSION_H
+}
